@@ -52,17 +52,18 @@ while continue_reading:
 
     # If a card is found
     if status == MIFAREReader.MI_OK:
-        print "Card detected"
+      print "Card detected"
 
-    # Get the UID of the card
-    (status,uid) = MIFAREReader.MFRC522_SelectTagSN()
-
-    # If we have the UID, continue
-    if status == MIFAREReader.MI_OK:
-
-        # Print UID
-     print "Card read UID:{}" % (uid)
-
-    else:
+      # Get the UID of the card
+      (status,uid) = MIFAREReader.MFRC522_SelectTagSN()
+      # If we have the UID, continue
+      if status == MIFAREReader.MI_OK:
+        HexValue=''
+        for i in  range(len(uid)):
+         if i > 0:
+           HexValue = HexValue + ','
+         HexValue = HexValue + hex(uid[i])
+        print("Card read UID: %s" % HexValue)
+      else:
         print "Authentication error"
 

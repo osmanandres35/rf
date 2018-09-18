@@ -21,10 +21,24 @@
 #    along with MFRC522-Python.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#    Copyright 2018 Daniel Perron
+#    17 Septembre 2018
+#    Add the possibility to read the 7 bytes and 10 bytes serial identification
+#    Base on  the C code from
+#    https://storage.googleapis.com/google-code-archive-source/v2/code.google.com/rpi-rc522/source-archive.zip
+#
+#
+
+
+
+
 import RPi.GPIO as GPIO
 import spi
 import signal
 import time
+
+DEBUG = False
+
 
 class MFRC522:
   NRSTPD = 22
@@ -316,14 +330,11 @@ class MFRC522:
     buf.append(pOut[0])
     buf.append(pOut[1])
     (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, buf)
-#    print("Status={} backlen={}".format(status,backLen))
     if (status == self.MI_OK) and (backLen == 0x18):
-      print "Size: " + str(backData[0])
-      print ("PcdSelect {} {}".format(anticolN,backData))
-      if backData[0] == 0:
-        return 4
-      else:
-        return    backData[0]
+      if DEBUG:
+        print "Size: " + str(backData[0])
+        print ("PcdSelect {} {}".format(anticolN,backData))
+      return  1
     else:
       return 0
 
@@ -364,14 +375,17 @@ class MFRC522:
     (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_AUTHENT,buff)
 
     # Check if an error occurred
-    if not(status == self.MI_OK):
-      print "AUTH ERROR!!"
-    if not (self.Read_MFRC522(self.Status2Reg) & 0x08) != 0:
-      print "AUTH ERROR(status2reg & 0x08) != 0"
+
+
+    if DEBUG:
+      if not(status == self.MI_OK):
+        print "AUTH ERROR!!"
+      if not (self.Read_MFRC522(self.Status2Reg) & 0x08) != 0:
+        print "AUTH ERROR(status2reg & 0x08) != 0"
 
     # Return the status
     return status
-  
+
   def MFRC522_StopCrypto1(self):
     self.ClearBitMask(self.Status2Reg, 0x08)
 
@@ -388,7 +402,7 @@ class MFRC522:
     i = 0
     if len(backData) == 16:
       print "Sector "+str(blockAddr)+" "+str(backData)
-  
+
   def MFRC522_Write(self, blockAddr, writeData):
     buff = []
     buff.append(self.PICC_WRITE)
@@ -449,10 +463,10 @@ class MFRC522:
       if status != self.MI_OK:
            return  (self.MI_ERR,[])
 
-      print("anticol1() {}".format(uid))
+      if DEBUG:   print("anticol1() {}".format(uid))
       if self.MFRC522_PcdSelect1(uid) == 0:
           return (self.MI_ERR,[])
-      print("pcdSelect1() {}".format(uid))
+      if DEBUG:   print("pcdSelect1() {}".format(uid))
 
       #check if first byte is 0x88
       if uid[0] == 0x88 :
@@ -461,31 +475,23 @@ class MFRC522:
          (status,uid)=self.MFRC522_Anticoll2()
          if status != self.MI_OK:
            return (self.MI_ERR,[])
-         print("Anticol2() {}".format(uid))
+         if DEBUG: print("Anticol2() {}".format(uid))
          rtn =  self.MFRC522_PcdSelect2(uid)
-         print("pcdSelect2 return={} uid={}".format(rtn,uid))
+         if DEBUG: print("pcdSelect2 return={} uid={}".format(rtn,uid))
          if rtn == 0:
            return (self.MI_ERR,[])
-         print("PcdSelect2() {}".format(uid))
+         if DEBUG: print("PcdSelect2() {}".format(uid))
          #now check again if uid[0] is 0x88
          if uid[0] == 0x88 :
            valid_uid.extend(uid[1:4])
            (status , uid) = self.MFRC522_Anticoll3()
            if status != self.MI_OK:
              return (self.MI_ERR,[])
-           print("Anticol3() {}".format(uid))
+           if DEBUG: print("Anticol3() {}".format(uid))
            if self.MFRC522_PcdSelect3(uid) == 0:
              return (self.MI_ERR,[])
-	   print("PcdSelect3() {}".format(uid))
+	   if DEBUG: print("PcdSelect3() {}".format(uid))
       valid_uid.extend(uid[0:4])
-
-      HexValue=''
-      for i in  range(len(valid_uid)):
-       if i > 0:
-         HexValue = HexValue + ','
-       HexValue = HexValue + hex(valid_uid[i])
-
-      print("Card read UID: %s" % HexValue)
 
       return (self.MI_OK,valid_uid)
 

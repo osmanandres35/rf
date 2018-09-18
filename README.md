@@ -1,5 +1,9 @@
 MFRC522-python
 ==============
+- Update Sept 2018
+  Modification of the Read function to be able to get RFID Identification  of 7 Bytes and 10 bytes 
+
+
 A small class to interface with the NFC reader Module MFRC522 on the Raspberry Pi.
 This is a Python port of the example code for the NFC module MF522-AN.
 
