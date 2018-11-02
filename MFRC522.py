@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf8 -*-
 #
 #    Copyright 2014,2018 Mario Gomez <mario.gomez@teubi.co>
@@ -32,8 +32,7 @@
 
 
 
-import RPi.GPIO as GPIO
-import spi
+import spidev 
 import signal
 import time
 
@@ -41,8 +40,6 @@ DEBUG = False
 
 
 class MFRC522:
-  NRSTPD = 22
-
   MAX_LEN = 16
 
   PCD_IDLE       = 0x00
@@ -142,21 +139,20 @@ class MFRC522:
 
   serNum = []
 
-  def __init__(self, dev='/dev/spidev0.0', spd=1000000):
-    spi.openSPI(device=dev,speed=spd)
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(self.NRSTPD, GPIO.OUT)
-    GPIO.output(self.NRSTPD, 1)
+  def __init__(self, bus=0,dev=0, spd=1000000):
+    self.spi=spidev.SpiDev()
+    self.spi.open(bus=bus,device=dev)
+    self.spi.max_speed_hz=spd
     self.MFRC522_Init()
 
   def MFRC522_Reset(self):
     self.Write_MFRC522(self.CommandReg, self.PCD_RESETPHASE)
 
   def Write_MFRC522(self, addr, val):
-    spi.transfer(((addr<<1)&0x7E,val))
+    self.spi.writebytes(((addr<<1)&0x7E,val))
 
   def Read_MFRC522(self, addr):
-    val = spi.transfer((((addr<<1)&0x7E) | 0x80,0))
+    val = self.spi.xfer2((((addr<<1)&0x7E) | 0x80,0))
     return val[1]
 
   def SetBitMask(self, reg, mask):
@@ -332,8 +328,8 @@ class MFRC522:
     (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, buf)
     if (status == self.MI_OK) and (backLen == 0x18):
       if DEBUG:
-        print "Size: " + str(backData[0])
-        print ("PcdSelect {} {}".format(anticolN,backData))
+        print("Size: " + str(backData[0]))
+        print("PcdSelect {} {}".format(anticolN,backData))
       return  1
     else:
       return 0
@@ -379,9 +375,9 @@ class MFRC522:
 
     if DEBUG:
       if not(status == self.MI_OK):
-        print "AUTH ERROR!!"
+        print("AUTH ERROR!!")
       if not (self.Read_MFRC522(self.Status2Reg) & 0x08) != 0:
-        print "AUTH ERROR(status2reg & 0x08) != 0"
+        print("AUTH ERROR(status2reg & 0x08) != 0")
 
     # Return the status
     return status
@@ -398,10 +394,10 @@ class MFRC522:
     recvData.append(pOut[1])
     (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE, recvData)
     if not(status == self.MI_OK):
-      print "Error while reading!"
+      print("Error while reading!")
     i = 0
     if len(backData) == 16:
-      print "Sector "+str(blockAddr)+" "+str(backData)
+      print("Sector "+str(blockAddr)+" "+str(backData))
 
   def MFRC522_Write(self, blockAddr, writeData):
     buff = []
@@ -414,7 +410,7 @@ class MFRC522:
     if not(status == self.MI_OK) or not(backLen == 4) or not((backData[0] & 0x0F) == 0x0A):
         status = self.MI_ERR
     
-    print "%s backdata &0x0F == 0x0A %s" % (backLen, backData[0]&0x0F)
+    print("%s backdata &0x0F == 0x0A %s" % (backLen, backData[0]&0x0F))
     if status == self.MI_OK:
         i = 0
         buf = []
@@ -426,9 +422,9 @@ class MFRC522:
         buf.append(crc[1])
         (status, backData, backLen) = self.MFRC522_ToCard(self.PCD_TRANSCEIVE,buf)
         if not(status == self.MI_OK) or not(backLen == 4) or not((backData[0] & 0x0F) == 0x0A):
-            print "Error while writing"
+            print("Error while writing")
         if status == self.MI_OK:
-            print "Data written"
+            print("Data written")
 
   def MFRC522_DumpClassic1K(self, key, uid):
     i = 0
@@ -438,11 +434,10 @@ class MFRC522:
         if status == self.MI_OK:
             self.MFRC522_Read(i)
         else:
-            print "Authentication error"
+            print("Authentication error")
         i = i+1
 
   def MFRC522_Init(self):
-    GPIO.output(self.NRSTPD, 1)
 
     self.MFRC522_Reset();
 
@@ -490,7 +485,7 @@ class MFRC522:
            if DEBUG: print("Anticol3() {}".format(uid))
            if self.MFRC522_PcdSelect3(uid) == 0:
              return (self.MI_ERR,[])
-	   if DEBUG: print("PcdSelect3() {}".format(uid))
+           if DEBUG: print("PcdSelect3() {}".format(uid))
       valid_uid.extend(uid[0:4])
 
       return (self.MI_OK,valid_uid)

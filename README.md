@@ -1,5 +1,16 @@
 MFRC522-python
 ==============
+-Update Oct 2018  
+  Replace spi by spidev
+  Remove Hardware reset
+  Remove GPIO from MFRC522
+  Add  DoorSystem example using a relay with mariadb sql
+
+
+  Check DoorSystem_HowTo.txt 
+
+
+
 - Update Sept 2018
   Modification of the Read function to be able to get RFID Identification  of 7 Bytes and 10 bytes 
 
@@ -29,7 +40,7 @@ You can use [this](http://i.imgur.com/y7Fnvhq.png) image for reference.
 | MISO | 21    | GPIO9      |
 | IRQ  | None  | None       |
 | GND  | Any   | Any Ground |
-| RST  | 22    | GPIO25     |
+| RST  | None  | None       |
 | 3.3V | 1     | 3V3        |
 
 ## Usage
