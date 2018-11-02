@@ -234,7 +234,7 @@ while continue_reading:
 
    if card_read is not None:
       setLed(1,0,0)
-      print(card_read)
+      #print(card_read)
       if validateCard(cur,card_read):
         setLed(0,1,0)
         setRelay(True)
