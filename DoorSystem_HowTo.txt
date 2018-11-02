@@ -108,15 +108,10 @@ Query OK, 0 rows affected (3.37 sec)
 pi@Pi2:~/MFRC522-python $ python3 DoorSystem.py
 Door System using Raspberry Pi
 Press Ctrl-C to stop.
-803697F280BA04
 Card 1:803697F280BA04 from user Daniel Accepted!
-024CD43C
 Card ?:024CD43C from unknown  Refused!
-0658D555
 Card 3:0658D555 from user Gilbert Invalid
-458E812A
 Card 4:458E812A from user Chantal Accepted!
-0658D9A5
 Card 2:0658D9A5 from user Claude Accepted!
 
  
