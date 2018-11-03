@@ -1,15 +1,11 @@
 MFRC522-python
 ==============
--Update Oct 2018  
-  Replace spi by spidev
-  Remove Hardware reset
-  Remove GPIO from MFRC522
-  Add  DoorSystem example using a relay with mariadb sql
-
-
+- Update Oct 2018  
+  Replace spi by spidev\
+  Remove Hardware reset\
+  Remove GPIO from MFRC522\
+  Add  DoorSystem example using a relay with mariadb sql\
   Check DoorSystem_HowTo.txt 
-
-
 
 - Update Sept 2018
   Modification of the Read function to be able to get RFID Identification  of 7 Bytes and 10 bytes 
