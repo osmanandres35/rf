@@ -114,12 +114,12 @@ MariaDB [rfidcardsdb]> CREATE TABLE `log_tbl` (
     5 rows in set (0.00 sec)
 
 
-8-  Read the rfid card Id of each cards and store it somewhere. 
+9-  Read the rfid card Id of each cards and store it somewhere. 
     
      python Read.py
 
 
-9- fill the data base 
+11- fill the data base 
     
     mysql -u rfidreader -p
 
@@ -158,11 +158,11 @@ MariaDB [rfidcardsdb]> CREATE TABLE `log_tbl` (
     +---------+---------+-----------+-------+---------------------+--------------+
     4 rows in set (0.01 sec)
 
-10- Let's install pymsql for python3
+12- Let's install pymsql for python3
 
     sudo pip3 install PyMySQL
 
-11 - And run DoorSystem
+13 - And run DoorSystem
 
 pi@Pi2:~/MFRC522-python $ python3 DoorSystem.py
 Door System using Raspberry Pi
