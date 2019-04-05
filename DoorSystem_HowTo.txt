@@ -14,17 +14,18 @@
     now approach a card to the reader
 
 5-  install mariadb mysql server
+     sudo apt-get update
      sudo apt-get install mysql-server python-mysqldb
 
 
 6-  create your data base access
-     sudo msql -u root -p       (set root password)
+     sudo mysql -u root -p       (set root password)
 
      create dabase rfidcardsdb and user
 
     MariaDB [(none)]> create database rfidcardsdb;
     MariaDB [(none)]> create user 'rfidreader'@localhost identified by 'password';
-    MariaDB [(none)]> grant all on rfidcardsdb.* to 'rfidreader' identified by 'password'
+    MariaDB [(none)]> grant all on rfidcardsdb.* to 'rfidreader' identified by 'password';
     MariaDB [(none)]> exit
 
 
@@ -68,6 +69,16 @@ MariaDB [rfidcardsdb]> CREATE TABLE `user_tbl` (
     -> PRIMARY KEY (`user_id`));
 
 
+MariaDB [rfidcardsdb]> CREATE TABLE `reader_tbl` (
+    -> `reader_id` int(11) NOT NULL AUTO_INCREMENT,
+    -> `reader_name` varchar(256) NOT NULL,
+    -> `enable` ttinyint(1) NOT NULL,
+    -> `zones_access` int(11) NOT NULL);
+   
+    
+    
+ 
+    
 MariaDB [rfidcardsdb]> CREATE TABLE `log_tbl` (
     -> `serial_no` varchar(20) NOT NULL,
     -> `card_id` int(11) NOT NULL,
@@ -117,7 +128,33 @@ MariaDB [rfidcardsdb]> CREATE TABLE `log_tbl` (
 9-  Read the rfid card Id of each cards and store it somewhere. 
     
      python Read.py
+     
+10- Create user
+    mysql -u rfidreader -p
+    
+    MariaDB [(none)]> use rfidcardsdb
+    Database changed
+    MariaDB [rfidcardsdb]> describe user_tbl;
+    +--------------+--------------+------+-----+---------+----------------+
+    | Field        | Type         | Null | Key | Default | Extra          |
+    +--------------+--------------+------+-----+---------+----------------+
+    | user_id      | int(11)      | NO   | PRI | NULL    | auto_increment |
+    | firstName    | varchar(256) | NO   |     | NULL    |                |
+    | lastName     | varchar(256) | NO   |     | NULL    |                |
+    | zones_access | smallint(11) | NO   |     | NULL    |                |
+    | expired_date | datetime     | NO   |     | NULL    |                |
+    +--------------+--------------+------+-----+---------+----------------+
+    5 rows in set (0.00 sec)
 
+    create user with different user_id
+
+    dMariaDB [rfidcardsdb]> INSERT INTO user_tbl (user_id,firstName,lastName,zones_access) values("1","Daniel","Perron","1");
+    Query OK, 1 row affected, 1 warning (0.01 sec)
+
+    MariaDB [rfidcardsdb]> INSERT INTO user_tbl (user_id,firstName,lastName,zones_access) values("2","Claude","Tessier","1");
+    Query OK, 1 row affected, 1 warning (0.01 sec)
+
+    do this for all your user.
 
 11- fill the data base 
     
@@ -125,6 +162,21 @@ MariaDB [rfidcardsdb]> CREATE TABLE `log_tbl` (
 
     MariaDB [(none)]> use rfidcardsdb
     Database changed
+    
+    MariaDB [rfidcardsdb]> describe reader_tbl;
+    +--------------+--------------+------+-----+---------+----------------+
+    | Field        | Type         | Null | Key | Default | Extra          |
+    +--------------+--------------+------+-----+---------+----------------+
+    | reader_id    | int(11)      | NO   | PRI | NULL    | auto_increment |
+    | reader_name  | varchar(256) | NO   |     | NULL    |                |
+    | enable       | tinyint(1)   | NO   |     | NULL    |                |
+    | zones_access | int(11)      | NO   |     | NULL    |                |
+    +--------------+--------------+------+-----+---------+----------------+
+    4 rows in set (0.00 sec)
+    
+    MariaDB [rfidcardsdb]> INSERT INTO reader_tbl (reader_id,reader_name,enable,zones_access) values("1","reader 1","1","1");
+    Query OK, 1 row affected (0.01 sec)
+    
     MariaDB [rfidcardsdb]> describe cards;
     +--------------+-------------+------+-----+---------+----------------+
     | Field        | Type        | Null | Key | Default | Extra          |
@@ -138,13 +190,13 @@ MariaDB [rfidcardsdb]> CREATE TABLE `log_tbl` (
     +--------------+-------------+------+-----+---------+----------------+
     6 rows in set (0.01 sec)
 
-    MariaDB [rfidcardsdb]> INSERT INTO cards (card_id,serial_no,user_id,valid) values("1","803697F280BA04","Daniel","1");
+    MariaDB [rfidcardsdb]> INSERT INTO cards (card_id,serial_no,user_id,valid) values("1","803697F280BA04","1","1");
     Query OK, 1 row affected (0.02 sec)
-    MariaDB [rfidcardsdb]> INSERT INTO cards (card_id,serial_no,user_id,valid) values("2","0658D9A5","Claude","1");
+    MariaDB [rfidcardsdb]> INSERT INTO cards (card_id,serial_no,user_id,valid) values("2","0658D9A5","2","1");
     Query OK, 1 row affected (0.02 sec)
-    MariaDB [rfidcardsdb]> INSERT INTO cards (card_id,serial_no,user_id,valid) values("3","0658D555","Gilbert","0"); 
+    MariaDB [rfidcardsdb]> INSERT INTO cards (card_id,serial_no,user_id,valid) values("3","0658D555","3","0"); 
     Query OK, 1 row affected (1.29 sec)
-    MariaDB [rfidcardsdb]> INSERT INTO cards (card_id,serial_no,user_id,valid) values("4","458E812A","Chantal","1");
+    MariaDB [rfidcardsdb]> INSERT INTO cards (card_id,serial_no,user_id,valid) values("4","458E812A","4","1");
     Query OK, 1 row affected (0.02 sec)
 
     MariaDB [rfidcardsdb]> select * from cards;
@@ -158,11 +210,17 @@ MariaDB [rfidcardsdb]> CREATE TABLE `log_tbl` (
     +---------+---------+-----------+-------+---------------------+--------------+
     4 rows in set (0.01 sec)
 
-12- Let's install pymsql for python3
+
+12- Create reader table
+
+
+
+
+13- Let's install pymsql for python3
 
     sudo pip3 install PyMySQL
 
-13 - And run DoorSystem
+14 - And run DoorSystem
 
 pi@Pi2:~/MFRC522-python $ python3 DoorSystem.py
 Door System using Raspberry Pi
